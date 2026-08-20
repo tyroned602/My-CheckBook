@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d1612" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Checkbook" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+    <title>Checkbook — voice-first ledger</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar"><div><p class="eyebrow">CHECKBOOK</p><h1>Good morning, Tyrone</h1></div><button class="icon-btn" id="lockBtn" aria-label="Lock app">⌑</button></header>
+      <section class="capture"><button class="mic" id="micBtn" aria-label="Record transaction"><span>●</span><strong>Tap to speak</strong><small>Record a transaction</small></button><div class="capture-copy"><h2>What happened?</h2><p id="status">Speak naturally and I’ll organize it for you.</p></div></section>
+      <section class="hero-card"><div><p class="eyebrow muted">AVAILABLE CASH</p><div class="hero-value" id="cashTotal">$0.00</div><p class="muted" id="accountCount">0 accounts</p></div><div class="pulse-dot"></div></section>
+      <form class="quick-form" id="entryForm"><input id="entry" autocomplete="off" placeholder="Spent $42 at AutoZone on Discover…" /><button>Parse</button></form>
+
+      <section class="confirmation hidden" id="confirmation"><div class="section-head"><div><p class="eyebrow muted">I HEARD</p><h2>Ready to save</h2></div><button class="text-btn" id="cancelBtn">Clear</button></div><div id="parsedList"></div><button class="save-btn" id="saveBtn">Save transaction</button></section>
+
+      <section class="section"><div class="section-head"><div><p class="eyebrow muted">MONEY</p><h2>Accounts</h2></div><button class="text-btn" id="addAccountBtn">+ Add</button></div><div id="accounts" class="account-list"></div></section>
+      <section class="section"><div class="section-head"><div><p class="eyebrow muted">TODAY</p><h2>Daily review</h2></div><button class="text-btn" id="reconcileBtn">Reconcile</button></div><div class="review-card"><div><span class="muted">Money in</span><strong class="positive" id="moneyIn">+$0.00</strong></div><div><span class="muted">Money out</span><strong class="negative" id="moneyOut">-$0.00</strong></div><div><span class="muted">Transactions</span><strong id="txCount">0</strong></div></div><button class="save-btn close-day" id="closeDayBtn">Close day & reconcile</button></section>
+      <section class="section"><div class="section-head"><div><p class="eyebrow muted">RECENT</p><h2>Transactions</h2></div><select id="filter"><option value="Everything">Everything</option><option>Personal</option><option>Reselling</option><option>Detailing</option></select></div><div id="transactions" class="tx-list"></div></section>
+      <section class="section backup-section"><div class="section-head"><div><p class="eyebrow muted">SAFETY</p><h2>Ledger backup</h2></div><span class="muted">Keep a copy</span></div><p class="backup-copy">Download your accounts and transactions to Files or iCloud Drive. Restore it anytime on this device.</p><div class="backup-actions"><button class="text-btn backup-btn" id="exportBtn">Download backup</button><button class="text-btn backup-btn" id="importBtn">Restore backup</button></div><input type="file" id="importFile" accept="application/json,.json" hidden /></section>
+    </main>
+    <div class="toast" id="toast"></div>
+    <script src="app.js"></script>
+    <script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js');</script>
+  </body>
+</html>
