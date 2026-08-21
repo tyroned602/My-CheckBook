@@ -4,4 +4,4 @@
 .close-day{margin-top:14px;padding:13px;width:100%}@media(max-width:540px){body{min-height:100dvh}.shell{padding:18px 14px calc(36px + env(safe-area-inset-bottom))}.topbar{padding-top:env(safe-area-inset-top)}.hero-value{font-size:38px}.capture{margin-top:18px}.quick-form input{font-size:16px}.mic{min-height:92px}}
 .backup-copy{font-size:13px;line-height:1.45;color:var(--muted);margin:10px 0 14px}.backup-actions{display:flex;gap:10px}.backup-btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:11px 12px;flex:1}
 .starting-btn{margin-top:12px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:11px 14px;width:100%}
-.account-tools{display:grid;grid-template-columns:auto auto auto;align-items:center;gap:7px;text-align:right}.account-action{background:none;color:var(--mint);font-size:11px;padding:3px}.account-action.danger{color:var(--red)}
+.account-tools,.tx-tools{display:grid;grid-template-columns:auto auto auto;align-items:center;gap:7px;text-align:right}.account-action{background:none;color:var(--mint);font-size:11px;padding:3px}.account-action.danger{color:var(--red)}
