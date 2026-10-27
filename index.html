@@ -33,7 +33,7 @@
       <section class="section sync-section"><div class="section-head"><div><p class="eyebrow muted">CLOUD SYNC</p><h2 id="syncTitle">Sync across devices</h2></div><span class="muted" id="syncStatus">Not connected</span></div><div id="authForm"><input id="authEmail" type="email" placeholder="Your email" autocomplete="email" /><input id="authPassword" type="password" placeholder="Password" autocomplete="current-password" /><div class="backup-actions"><button class="text-btn backup-btn" id="signInBtn">Sign in</button><button class="text-btn backup-btn" id="signUpBtn">Create account</button></div></div><div id="syncControls" class="hidden"><p class="backup-copy">Your ledger is synced privately between your devices.</p><div class="backup-actions"><button class="text-btn backup-btn" id="syncNowBtn">Sync now</button><button class="text-btn backup-btn" id="signOutBtn">Sign out</button></div></div></section>
     </main>
     <div class="toast" id="toast"></div>
-    <script src="app.js?v=5"></script>
+    <script src="app.js?v=6"></script>
     <script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').then(reg=>reg.update());</script>
   </body>
 </html>
