@@ -2,6 +2,8 @@
 
 This is a browser prototype of the core iOS-first product loop: capture a natural-language transaction, parse it locally, confirm it quickly, save it to a local ledger, and see balances update. Data is persisted in `localStorage`; use Safari/Chrome for browser speech recognition.
 
+The current prototype also includes quick cash entry and a PayPal Business PDF importer. The importer proposes only completed debit-card activity, cashback, and nonzero PayPal adjustments; authorization holds, reversals, denied/voided items, and previously imported PayPal transaction IDs are excluded before the review step.
+
 ## Product definition
 
 The MVP is intentionally narrow: accounts and opening balances, income/expenses, transfers as a separate transaction type, personal/business context, transaction history, daily totals, reconciliation checkpoints, local persistence, and CSV export as the next small slice. The daily review is the organizing principle; reporting, bank sync, forecasting, subscriptions, and accounting integrations are later.
