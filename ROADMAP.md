@@ -1,6 +1,6 @@
 # Checkbook improvement plan
 
-## Stage 1: Safe sync (implementation in progress)
+## Stage 1: Safe sync (published; live device verification pending)
 
 Revision-checked database writes; device/cloud choice on differing ledgers;
 five recovery copies on the device; persistent sync feedback; serialized saves.
@@ -9,6 +9,11 @@ Verify real phone/desktop operation after deployment. Recovery exports contain
 multiple ledger copies; they are not regular single-ledger restore files.
 
 ## Stage 2: Imports and accounting
+
+First checkpoint implemented: duplicate-ID checks within a PDF and at save,
+manual-entry matching by account/merchant/amount/date, explicit link-or-add
+choices, recovery before import, and a persistent completion receipt.
+Run `node tests/imports.test.cjs` from the project directory.
 
 Deduplicate within PDFs and at save time. Match manual purchases to statement
 entries. Show import dates, totals, exclusions, and receipts. Add statement
