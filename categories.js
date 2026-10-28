@@ -95,7 +95,7 @@ function renderCategoryReview() {
   let receipts = 0, transfers = 0;
   for(const t of visible) {
     const category = suggestCategory(t);
-    if(category === 'Transfer') {transfers += Math.abs(t.amount);continue;}
+    if(category === 'Transfer') {if(t.amount<0)transfers += Math.abs(t.amount);continue;}
     if(t.amount > 0) {receipts += t.amount;continue;}
     totals.set(category,(totals.get(category)||0)-t.amount);
   }

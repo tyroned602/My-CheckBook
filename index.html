@@ -25,6 +25,7 @@
       <section class="section category-section"><div class="section-head"><div><p class="eyebrow muted">WHERE IT GOES</p><h2>Spending by category</h2></div></div><div class="reconcile-form"><label>Month<select id="categoryMonth" aria-label="Report month"></select></label><label>Personal or business<select id="categoryContext"><option value="All">All</option><option>Personal</option><option>Reselling</option><option>Detailing</option></select></label></div><p class="backup-copy" id="categoryTotals"></p><p class="backup-copy">Purchases are shown before refunds. Money received includes income, refunds, cashback, and receipts awaiting review. Transfers and balance adjustments are excluded from purchases.</p><div id="categoryBreakdown"></div><details class="review-queue"><summary>Needs review <span id="categoryReviewCount"></span></summary><p class="backup-copy">QT purchases go to Personal Gas automatically. Other mixed-use stores stay here until you choose a category. Your choice applies to this transaction. Business purchases can be marked Reselling or Detailing.</p><div id="categoryReviewList"></div></details></section>
 
       <section class="section"><div class="section-head"><div><p class="eyebrow muted">MONEY</p><h2>Accounts</h2></div><button class="text-btn" id="addAccountBtn">+ Add</button></div><div id="accounts" class="account-list"></div><button class="text-btn starting-btn" id="startingPointBtn">Set starting point</button></section>
+      <section class="section"><details><summary>Move money between accounts</summary><form id="transferForm"><div class="reconcile-form"><label>From<select id="transferFrom"></select></label><label>To<select id="transferTo"></select></label><label>Amount<input id="transferAmount" inputmode="decimal" placeholder="20.00" required /></label></div><p class="backup-copy">Updates both balances together. Transfers are excluded from income and spending.</p><button class="save-btn">Save transfer</button></form></details></section>
       <section class="section cash-section"><div class="section-head"><div><p class="eyebrow muted">QUICK ENTRY</p><h2>Cash</h2></div><span class="muted" id="cashBalanceLabel">$0.00</span></div><div class="backup-actions"><button class="text-btn backup-btn" id="cashOutBtn">Cash expense</button><button class="text-btn backup-btn" id="cashInBtn">Cash received</button></div></section>
       <section class="section import-section"><div class="section-head"><div><p class="eyebrow muted">PAYPAL BUSINESS</p><h2>Import statement</h2></div><span class="muted" id="importStatus">PDF</span></div><p class="backup-copy">Upload a PayPal transaction-history PDF. Holds, authorizations, reversals, denied items, and duplicates are filtered before review.</p><label class="import-label">Import into <select id="importAccount"></select></label><button class="save-btn import-btn" id="choosePdfBtn">Choose PayPal PDF</button><input type="file" id="paypalPdf" accept="application/pdf,.pdf" hidden /><div id="importPreview" class="import-preview hidden"></div></section>
       <section class="section reconcile-section"><div class="section-head"><div><p class="eyebrow muted">BALANCE CHECK</p><h2>Reconcile accounts</h2></div><span class="muted" id="reconcileStatus">Not checked</span></div><p class="backup-copy">Enter what PayPal or your wallet shows right now. Checkbook will show the difference before making any adjustment.</p><div class="reconcile-form"><label>Account<select id="reconcileAccount"></select></label><label>Actual balance<input id="actualBalance" type="number" step="0.01" inputmode="decimal" placeholder="0.00" /></label></div><div class="reconcile-result hidden" id="reconcileResult"></div><div class="backup-actions"><button class="text-btn backup-btn" id="checkBalanceBtn">Check difference</button><button class="save-btn reconcile-save hidden" id="matchBalanceBtn">Match this balance</button></div></section>
@@ -36,10 +37,11 @@
       <button class="starting-btn text-btn" id="downloadRecovery">Download recovery copies</button>
     </main>
     <div class="toast" id="toast"></div>
-    <script src="app.js?v=17"></script>
-    <script src="categories.js?v=17"></script>
-    <script src="sync.js?v=17"></script>
-    <script src="imports.js?v=17"></script>
+    <script src="app.js?v=18"></script>
+    <script src="categories.js?v=18"></script>
+    <script src="sync.js?v=18"></script>
+    <script src="imports.js?v=18"></script>
+    <script src="transfers.js?v=18"></script>
     <script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').then(reg=>reg.update());</script>
   </body>
 </html>

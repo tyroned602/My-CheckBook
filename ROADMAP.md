@@ -15,6 +15,12 @@ manual-entry matching by account/merchant/amount/date, explicit link-or-add
 choices, recovery before import, and a persistent completion receipt.
 Run `node tests/imports.test.cjs` from the project directory.
 
+Second checkpoint implemented: linked two-account transfers, reversal of both
+entries on removal, transfer exclusion from daily income/spending, and comma-aware
+capture/transfer amount parsing. Transfer arithmetic uses cents; a full migration
+of older entry/edit paths to integer-cent storage remains. Run
+`node tests/transfers.test.cjs`. Legacy unpaired transfers require review.
+
 Deduplicate within PDFs and at save time. Match manual purchases to statement
 entries. Show import dates, totals, exclusions, and receipts. Add statement
 balance checks. Implement paired transfers, integer-cent money storage, and
