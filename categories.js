@@ -62,6 +62,20 @@ function subcategorySummary(category, visible, total) {
   const water = visible.filter(t=>t.amount<0&&transactionSubcategory(t)==='Water').reduce((sum,t)=>sum-t.amount,0);
   return water>0 ? `<p class="subcategory-summary">Water · ${(water/total*100).toFixed(1)}% of Groceries <strong>${money(water)}</strong></p>` : '';
 }
+function interactiveSpendingPie(slices, spent, colors) {
+  const icons = {'Groceries':'🛒','Gas':'⛽','Resale inventory':'📦','Eating out':'🍽️','Personal items':'🛍️','Loans':'🏦','Storage':'🔐','Insurance':'🛡️','Laundry':'🧺','Subscriptions':'🔄','Business supplies':'🧰','Household':'🏠','Health & fitness':'💪','Needs review':'❓','Other':'•••'};
+  let angle=-Math.PI/2;
+  const pieces=slices.map(([name,value],i)=>{
+    const share=value/spent, end=angle+share*Math.PI*2, mid=(angle+end)/2;
+    const point=a=>[160+125*Math.cos(a),160+125*Math.sin(a)];
+    const a=point(angle),b=point(end);
+    const path=share>.999999?'M 160 35 A 125 125 0 1 1 160 285 A 125 125 0 1 1 160 35 Z':`M160 160 L${a.join(' ')} A125 125 0 ${share>.5?1:0} 1 ${b.join(' ')} Z`;
+    angle=end;
+    const label=`${name}: ${(share*100).toFixed(1)}%, ${money(value)}`;
+    return `<g class="pie-slice" data-slice="${i}" tabindex="0" role="button" aria-label="${categoryEscape(label)}" aria-pressed="false" style="--lift-x:${Math.cos(mid)*7}px;--lift-y:${Math.sin(mid)*7}px"><title>${categoryEscape(label)}</title><path d="${path}" fill="${colors[i%colors.length]}" stroke="#15211b" stroke-width="2"/>${share>=.075?`<text x="${160+83*Math.cos(mid)}" y="${160+83*Math.sin(mid)-5}" text-anchor="middle" class="pie-label"><tspan>${icons[name]||'●'}</tspan><tspan x="${160+83*Math.cos(mid)}" dy="18">${(share*100).toFixed(1)}%</tspan></text>`:''}</g>`;
+  }).join('');
+  return `<figure class="spending-figure"><svg class="interactive-pie" viewBox="0 0 320 320" aria-label="Spending by category">${pieces}</svg><div class="pie-detail" id="pieDetail" aria-live="polite"><strong>${money(spent)} in purchases</strong><span>Tap a slice or category for details</span></div><figcaption><p class="backup-copy">Icons label larger slices. Select any category below for its full details. Percentages are before refunds.</p><ul class="pie-legend">${slices.map(([name,value],i)=>`<li><button type="button" class="pie-legend-button" data-slice="${i}" aria-pressed="false"><span class="pie-key" style="background:${colors[i%colors.length]}"></span><span>${icons[name]||'●'} ${categoryEscape(name)}</span><strong>${(value/spent*100).toFixed(1)}% · ${money(value)}</strong></button></li>`).join('')}</ul></figcaption></figure>`;
+}
 function renderCategoryReview() {
   const tx = state.transactions.filter(t => !t.isAdjustment);
   const months = [...new Set(tx.map(monthOfTransaction).filter(m => /^\d{4}-\d{2}$/.test(m)))].sort().reverse();
@@ -100,7 +114,18 @@ function renderCategoryReview() {
     position += value / spent * 100;
     return `${colors[i%colors.length]} ${start}% ${position}%`;
   });
-  chart.innerHTML = spent>0 ? `<figure class="spending-figure"><div class="spending-pie" role="img" aria-label="Spending by category; percentages and amounts listed below" style="background:conic-gradient(${stops.join(',')})"></div><figcaption><strong>${money(spent)} in purchases</strong><p class="backup-copy">Share of spending for the selected month and context, before refunds.</p><ul class="pie-legend">${slices.map(([name,value],i)=>`<li><span class="pie-key" style="background:${colors[i%colors.length]}"></span><span>${categoryEscape(name)}</span><strong>${(value/spent*100).toFixed(1)}% · ${money(value)}</strong></li>`).join('')}</ul></figcaption></figure>` : '<p class="backup-copy">The chart will appear when this selection has spending.</p>';
+  chart.innerHTML = spent>0 ? interactiveSpendingPie(slices,spent,colors) : '<p class="backup-copy">The chart will appear when this selection has spending.</p>';
+  const highlight = index => {
+    chart.querySelectorAll("[data-slice]").forEach(el=>{const active=el.dataset.slice===index;el.classList.toggle("selected",active);el.setAttribute("aria-pressed",String(active));});
+    const [name,value]=slices[Number(index)];
+    $("pieDetail").innerHTML=`<strong>${categoryEscape(name)} · ${(value/spent*100).toFixed(1)}%</strong><span>${money(value)} of ${money(spent)} in purchases</span>`;
+  };
+  chart.querySelectorAll("[data-slice]").forEach(el=>{
+    el.addEventListener("pointerenter",()=>highlight(el.dataset.slice));
+    el.addEventListener("focus",()=>highlight(el.dataset.slice));
+    el.addEventListener("click",()=>highlight(el.dataset.slice));
+    el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();highlight(el.dataset.slice);}});
+  });
   $('categoryTotals').textContent = `Purchases ${money(spent)} · Money received ${money(receipts)} · Transfer activity ${money(transfers)}`;
   $('categoryBreakdown').innerHTML = [...totals].sort((a,b)=>b[1]-a[1]).map(([category,total])=>`<details class="category-detail"><summary><span>${categoryEscape(category)}</span><strong>${money(total)}</strong></summary>${subcategorySummary(category,visible,total)}${visible.filter(t=>t.amount<0&&suggestCategory(t)===category).map(t=>`<p>${formatDate(t.date)} · ${categoryEscape(t.merchant)} <strong>${money(t.amount)}</strong></p>`).join('')}</details>`).join('') || '<p class="backup-copy">No purchases for this selection.</p>';
 }
