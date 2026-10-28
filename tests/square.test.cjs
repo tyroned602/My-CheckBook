@@ -1,0 +1,15 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ctx=vm.createContext({crypto:require('node:crypto')});
+vm.runInContext(fs.readFileSync('imports.js','utf8').split('const originalPayPalParser')[0],ctx);
+vm.runInContext(fs.readFileSync('square.js','utf8').split('let squareBatch')[0],ctx);
+const csv='Date,Details,Amount,Balance,Activity Type,Status,Expense Type,Category\n10/18/26,QuikTrip,-$10.00,$65.00,Card spend,Completed,Business,Gas\n10/17/26,Goodwill,-$25.00,$75.00,Card spend,Completed,Business,Inventory\n10/16/26,Card payment,$100.00,$100.00,Sales,Completed,Business,\n';
+const batch=ctx.parseSquareCsv(csv);assert.equal(batch.transactions.length,3);assert.equal(batch.openingCents,0);assert.equal(batch.closingCents,6500);assert.equal(batch.inCents,10000);assert.equal(batch.outCents,3500);
+const ledger={accounts:[],transactions:[]};
+const choices=batch.transactions.map(t=>({transaction:t,action:'add'}));
+const imported=ctx.prepareSquareImport(ledger,batch,'Square',choices);assert.equal(imported.next.accounts[0].balance,65);assert.equal(imported.next.transactions[0].incomeSource,'Detailing');assert.equal(imported.next.transactions[0].category,'Service income');assert.equal(ledger.accounts.length,0);
+const again=ctx.prepareSquareImport(imported.next,batch,'Square',choices);assert.equal(again.added,0);assert.equal(again.skipped,3);assert.equal(again.next.accounts[0].balance,65);
+assert.throws(()=>ctx.parseSquareCsv(csv.replace('$65.00','$64.00')));
+assert.throws(()=>ctx.parseSquareCsv(csv.replace('Card spend','Transfer')));
+assert.throws(()=>ctx.parseSquareCsv(csv.replace('10/18/26','02/30/26')));
+const nonzero=ctx.parseSquareCsv(csv.replace('$75.00,Card spend','$85.00,Card spend').replace('$65.00','$75.00').replace('$100.00,Sales','$110.00,Sales'));assert.throws(()=>ctx.prepareSquareImport(ledger,nonzero,'Square',nonzero.transactions.map(t=>({transaction:t,action:'add'}))));
+console.log('Passed Square CSV balances, first import, repeat import, detailing credit, and rejection of unsupported activity, invalid dates, missing balance movement, and nonzero new-account opening.');

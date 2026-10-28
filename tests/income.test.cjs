@@ -1,0 +1,7 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ctx=vm.createContext({});vm.runInContext(fs.readFileSync('income.js','utf8').split('function renderIncomeView')[0],ctx);
+const base={date:'2026-10-16T12:00:00',account:'Square',context:'Detailing'};
+const ledger={accounts:[{name:'Square',type:'Business'},{name:'Cash',type:'Cash'}],transactions:[{...base,amount:100,category:'Service income',incomeSource:'Detailing'},{...base,amount:20,category:'Refund'},{...base,amount:2,category:'Cashback'},{...base,amount:30,category:'Transfer'},{...base,amount:5,category:'Needs review'},{...base,amount:50,category:'Service income',incomeSource:'Detailing',account:'Cash'},{...base,amount:100,isAdjustment:true},{...base,amount:-10,category:'Gas'}]};
+const all=ctx.summarizeIncome(ledger,'2026-10');assert.equal(all.totals.income,15000);assert.equal(all.totals.refund,2000);assert.equal(all.totals.cashback,200);assert.equal(all.totals.transfer,3000);assert.equal(all.totals.review,500);
+assert.equal(ctx.summarizeIncome(ledger,'2026-10','All','Cash').totals.income,5000);assert.equal(ctx.summarizeIncome(ledger,'2026-10','All','Account/card').totals.income,10000);assert.equal(ctx.summarizeIncome(ledger,'2026-11').rows.length,0);
+console.log('Passed income/source totals, card/cash grouping, month filters, and exclusion of refunds, cashback, transfers, and adjustments from earned income.');

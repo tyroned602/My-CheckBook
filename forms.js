@@ -43,6 +43,7 @@ function openTransactionEditor(t=null,options={}) {
     field('Date','date',selectedDate,'type="date" required')+
     `<label>Category<select name="category">${categories.map(c=>`<option ${c===category?'selected':''}>${categoryEscape(c)}</option>`).join('')}</select></label><label>Personal or business<select name="context">${['Personal','Reselling','Detailing'].map(c=>`<option ${c===(t?.context||'Personal')?'selected':''}>${c}</option>`).join('')}</select></label>`+
     `<label>Subcategory<select name="subcategory"><option value="">None</option><option ${t?.subcategory==='Water'?'selected':''}>Water</option></select></label><label>Category choice<select name="ruleMode"><option value="manual">This transaction only</option><option value="auto">Use merchant default</option></select></label>`+
+    `<details ${t?.amount>0?'open':''}><summary>Income details (money received only)</summary><label>Income source<select name="incomeSource"><option value="">Not recorded</option>${['Detailing','eBay','Facebook','Mercari','Other'].map(s=>`<option ${s===t?.incomeSource?'selected':''}>${s}</option>`).join('')}</select></label><label>Received through<select name="paymentMethod"><option value="">Use receiving account</option>${['Cash','Square','Deposit'].map(s=>`<option ${s===t?.paymentMethod?'selected':''}>${s}</option>`).join('')}</select></label></details>`+
     field('Note (optional)','note',t?.note||'','maxlength="500"'),
     form=>{
       const amount=parseMoneyCents(form.amount.value)/100*(form.direction.value==='expense'?-1:1);
@@ -55,6 +56,19 @@ function openTransactionEditor(t=null,options={}) {
       if(item.subcategory&&item.category!=='Groceries'&&form.ruleMode.value!=='auto')throw Error('Water belongs under Groceries');
       if(form.ruleMode.value==='auto'){item.category='Needs review';item.subcategory='';item.categoryConfirmed=false;item.categorySource='';}
       else item.categoryConfirmed=true;
+      item.incomeSource=amount>0?form.incomeSource.value:'';
+      item.paymentMethod=amount>0?form.paymentMethod.value:'';
+      if(amount>0&&item.paymentMethod){
+        const receiving=state.accounts.find(a=>a.name===item.account);
+        if(item.paymentMethod==='Cash'&&receiving?.type!=='Cash')throw Error('Choose the Cash account for a cash payment');
+        if(item.paymentMethod==='Square'&&!/square/i.test(receiving?.name||''))throw Error('Choose the Square account for a Square payment');
+        if(item.paymentMethod==='Deposit'&&receiving?.type==='Cash')throw Error('Choose the account receiving the deposit');
+      }
+      if(amount>0&&item.incomeSource&&['Needs review','Income'].includes(item.category)){
+        item.category=item.incomeSource==='Detailing'?'Service income':item.incomeSource==='Other'?'Other income':'Sales income';
+        item.context=item.incomeSource==='Detailing'?'Detailing':item.incomeSource==='Other'?item.context:'Reselling';
+        item.categoryConfirmed=true;
+      }
       if(options.pending){pending=[{...t,...item}];showParsed(pending);return;}
       state=changeTransaction(state,t?.id,item);save();toast('Transaction saved');
     });

@@ -71,6 +71,20 @@ Ship and verify each stage separately. Keep financial data out of GitHub.
 
 ## Original roadmap (reference)
 
+## Square and income checkpoint
+
+Square all-activity CSV preview/import supports completed Sales and Card spend,
+validates running balances, preserves original source labels, detects repeat rows
+using date/details/amount/balance/type, and offers manual-entry matching. A new
+Square account is created only on confirmed import with a verified zero opening.
+Unsupported activity stops the import for review. No gross-sales or fee amounts
+are inferred. User confirmed the initial Square sale is detailing income.
+
+Reports combine all accounts with an Account/card vs Cash filter. Income &
+deposits distinguishes earned income, refunds, cashback, transfers, and review.
+Forms record Detailing/eBay/Facebook/Mercari sources and Cash/Square/Deposit
+methods. Tests: `node tests/square.test.cjs` and `node tests/income.test.cjs`.
+
 ## Now
 
 1. Make PayPal Business and Cash the primary account workflow.

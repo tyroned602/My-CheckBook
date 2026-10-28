@@ -32,7 +32,9 @@ function setupAppPages(){
   move('entryForm','home',false);move('manualEntryBtn','home',false);move('confirmation','home',false);
   for(const id of ['accounts','cashOutBtn','transferForm','moneyIn','reconcileAccount'])move(id,'home');
   move('transactions','transactions');move('choosePdfBtn','transactions');
+  move('squareCsvFile','transactions');
   move('categoryMonth','reports');
+  move('incomeReport','reports');
   for(const id of ['authForm','exportBtn','merchantRuleList','removedItems'])move(id,'settings');
   move('downloadRecovery','settings',false);
   move('refreshApp','settings',false);

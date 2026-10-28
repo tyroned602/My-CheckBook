@@ -1,6 +1,6 @@
 // Categories describe the purchase; context describes which part of life it belongs to.
 const spendingCategories = ['Needs review', 'Groceries', 'Eating out', 'Gas', 'Personal items', 'Household', 'Subscriptions', 'Loans', 'Business supplies', 'Resale inventory', 'Water', 'Laundry', 'Storage', 'Insurance', 'Health & fitness', 'Other'];
-const receiptCategories = ['Needs review', 'Sales income', 'Other income', 'Refund', 'Cashback', 'Transfer'];
+const receiptCategories = ['Needs review', 'Sales income', 'Service income', 'Other income', 'Refund', 'Cashback', 'Transfer'];
 const categoryEscape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function isPersonalGasPurchase(t) {
   return !t.isAdjustment && t.amount < 0 && t.category !== 'Transfer' && /\bqt\b|\bquiktrip\b/i.test(String(t.merchant || ''));
@@ -79,7 +79,7 @@ function renderCategoryReview() {
   $('categoryMonth').innerHTML = months.map(m => `<option value="${m}" ${m===selected?'selected':''}>${new Date(m+'-15T12:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'})}</option>`).join('');
   const month = $('categoryMonth').value;
   const context = $('categoryContext').value;
-  const visible = tx.filter(t => monthOfTransaction(t) === month && (context === 'All' || t.context === context));
+  const visible = tx.filter(t => monthOfTransaction(t) === month && (context === 'All' || t.context === context) && (typeof matchesReportPayment!=='function'||matchesReportPayment(t)));
   const pending = visible.filter(t => suggestCategory(t) === 'Needs review');
   $('categoryReviewCount').textContent = `${pending.length} to review`;
   $('categoryReviewList').innerHTML = pending.slice(0,10).map(t => {
