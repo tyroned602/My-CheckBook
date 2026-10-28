@@ -34,8 +34,12 @@ balance changes route through reconciliation. Balance confirmations recheck the
 account signature, and daily completion requires fresh checks of every account.
 Completed reviews persist in cloud data and regular backups. The inactive lock
 button was removed. Run `node tests/forms.test.cjs`.
-Still pending: full restore validation and recoverable deletion for ordinary
-transactions/accounts, plus broader mobile verification.
+Second checkpoint implemented: validated backup restores with an account/balance
+preview and recovery before replacement; recoverable transaction and paired-transfer
+deletion; removal/restore of empty accounts; removed PayPal ID tracking to prevent
+repeat imports resurrecting deleted entries; recovery-file selection. Accounts
+with history are protected from removal pending an archive workflow. Run
+`node tests/safety.test.cjs`. Broader mobile verification remains.
 
 Replace pop-up prompts with accessible forms. Allow account/date/category edits
 before saving. Recheck balances when confirming adjustments and record daily

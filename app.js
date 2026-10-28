@@ -2,7 +2,6 @@ const seed={accounts:[{id:'paypal-business',name:'PayPal Business',type:'Busines
 const SUPABASE_URL='https://wpyecimdljlpgjxkbaxu.supabase.co',SUPABASE_KEY='sb_publishable_fLJpwCYGOkn-BlPizw-y3Q_cfqLh92k',cloud=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY);
 let state=JSON.parse(localStorage.getItem('checkbook')||JSON.stringify(seed)), pending=[],importCandidates=[],pendingReconciliation=null;
 function normalizeState(){if(!Array.isArray(state.accounts))state.accounts=[];if(!Array.isArray(state.transactions))state.transactions=[];if(!Array.isArray(state.reconciliations))state.reconciliations=[]}normalizeState();
-if(!state.accounts.some(a=>/paypal/i.test(a.name)))state.accounts.push({id:'paypal-business',name:'PayPal Business',type:'Business',balance:0});if(!state.accounts.some(a=>a.type==='Cash'||/^cash$/i.test(a.name)))state.accounts.push({id:'cash',name:'Cash',type:'Cash',balance:0});
 const $=id=>document.getElementById(id), money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Math.abs(n)), signed=n=>(n<0?'-':'+')+money(n),formatDate=d=>{const date=new Date(d);return Number.isNaN(date.getTime())?'Date unavailable':date.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
 function save(){localStorage.setItem('checkbook',JSON.stringify(state));render();if(cloud)uploadCloud()}
 function escapeLedgerText(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}

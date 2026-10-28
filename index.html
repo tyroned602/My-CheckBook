@@ -36,15 +36,17 @@
       <section class="section"><div class="section-head"><div><p class="eyebrow muted">RECENT</p><h2>Transactions</h2></div><select id="filter"><option value="Everything">Everything</option><option>Personal</option><option>Reselling</option><option>Detailing</option></select></div><p class="backup-copy">Scroll inside the list to see more transactions.</p><div id="transactions" class="tx-list" tabindex="0" aria-label="Transaction history"></div></section>
       <section class="section confirmation hidden" id="syncConflict" role="region" aria-label="Choose a ledger"><h2>Which ledger should we use?</h2><p class="backup-copy" id="syncConflictSummary"></p><p class="backup-copy">Choosing a copy replaces the other ledger. This does not merge transactions. Download your current backup first if you want an extra copy.</p><div class="backup-actions"><button class="backup-btn text-btn" id="useDeviceLedger">Use this device’s copy</button><button class="backup-btn text-btn" id="useCloudLedger">Use cloud copy</button></div></section>
       <button class="starting-btn text-btn" id="downloadRecovery">Download recovery copies</button>
+      <section class="section"><details><summary>Removed items — restore an entry</summary><p class="backup-copy">Restoring a transaction reapplies its balance change. Removed statement entries stay excluded from repeat imports until restored.</p><div id="removedItems" class="tx-list"></div></details></section>
     </main>
     <dialog id="ledgerEditor" aria-labelledby="editorTitle"><form id="editorForm"><h2 id="editorTitle"></h2><div id="editorFields" class="editor-fields"></div><p id="editorError" role="alert"></p><div class="backup-actions"><button type="button" class="backup-btn text-btn" id="editorCancel">Cancel</button><button class="save-btn">Save</button></div></form></dialog>
     <div class="toast" id="toast"></div>
-    <script src="app.js?v=19"></script>
-    <script src="categories.js?v=19"></script>
-    <script src="sync.js?v=19"></script>
-    <script src="imports.js?v=19"></script>
-    <script src="transfers.js?v=19"></script>
-    <script src="forms.js?v=19"></script>
+    <script src="app.js?v=20"></script>
+    <script src="categories.js?v=20"></script>
+    <script src="sync.js?v=20"></script>
+    <script src="imports.js?v=20"></script>
+    <script src="transfers.js?v=20"></script>
+    <script src="forms.js?v=20"></script>
+    <script src="safety.js?v=20"></script>
     <script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').then(reg=>reg.update());</script>
   </body>
 </html>

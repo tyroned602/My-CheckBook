@@ -84,6 +84,7 @@ document.addEventListener('click',e=>{
   e.preventDefault();e.stopImmediatePropagation();
   const pair=state.transactions.filter(x=>x.transferId===t.transferId);
   if(button.dataset.editTransaction)return toast('To correct a transfer, remove it and enter it again using the transfer form');
+  if(typeof requestTransactionRemoval==='function')return requestTransactionRemoval(t);
   if(pair.length!==2)return toast('Transfer pair is incomplete — keep it for review');
   if(!confirm('Remove this transfer from both accounts and reverse both balance changes?'))return;
   try{

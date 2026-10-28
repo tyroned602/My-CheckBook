@@ -1,0 +1,18 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ctx=vm.createContext({crypto:require('node:crypto')});
+vm.runInContext(fs.readFileSync('safety.js','utf8').split('function requestTransactionRemoval')[0],ctx);
+const item={id:'t1',merchant:'Test',amount:-10,account:'PayPal',category:'Gas',context:'Personal',date:'2026-10-28T12:00:00',externalId:'ABC'};
+const ledger={accounts:[{id:'paypal',name:'PayPal',type:'Business',balance:73.37},{id:'cash',name:'Cash',type:'Cash',balance:70}],transactions:[item],reconciliations:[]};
+const before=JSON.stringify(ledger);
+ctx.validateLedgerBackup(ledger);
+const removed=ctx.removeLedgerTransactions(ledger,'t1');assert.equal(removed.accounts[0].balance,83.37);assert.equal(removed.transactions.length,0);assert.equal(removed.trash.length,1);assert(ctx.trashPayPalIds(removed).has('ABC'));
+const restored=ctx.restoreRemovedItem(removed,removed.trash[0].id);assert.equal(restored.accounts[0].balance,73.37);assert.equal(restored.transactions.length,1);assert.equal(restored.trash.length,0);assert.equal(JSON.stringify(ledger),before);
+const bad=JSON.parse(before);bad.transactions.push({...item,id:'t2'});assert.throws(()=>ctx.validateLedgerBackup(bad));
+const missing=JSON.parse(before);missing.accounts=[];assert.throws(()=>ctx.validateLedgerBackup(missing));
+const invalid=JSON.parse(before);invalid.accounts[0].balance='73.37';assert.throws(()=>ctx.validateLedgerBackup(invalid));
+const badDate=JSON.parse(before);badDate.transactions[0].date='invalid';assert.throws(()=>ctx.validateLedgerBackup(badDate));
+const paired=JSON.parse(before);paired.transactions=[{...item,externalId:undefined,transferId:'pair',category:'Transfer'}, {...item,id:'t2',externalId:undefined,transferId:'pair',category:'Transfer',account:'Cash',amount:10}];
+const removedPair=ctx.removeLedgerTransactions(paired,'t1');assert.equal(removedPair.transactions.length,0);assert.equal(removedPair.accounts[0].balance,83.37);assert.equal(removedPair.accounts[1].balance,60);
+const restoredPair=ctx.restoreRemovedItem(removedPair,removedPair.trash[0].id);assert.equal(restoredPair.accounts[0].balance,73.37);assert.equal(restoredPair.accounts[1].balance,70);
+const incomplete=JSON.parse(before);incomplete.transactions[0].transferId='pair';incomplete.transactions[0].category='Transfer';assert.throws(()=>ctx.validateLedgerBackup(incomplete));
+console.log('Passed recovery, paired reversal/restore, deleted PayPal ID tracking, and rejection of invalid balances, missing accounts, duplicate IDs, invalid dates, and incomplete transfers.');
