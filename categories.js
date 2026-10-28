@@ -22,6 +22,7 @@ function isLoanPayment(t) {
 }
 function suggestCategory(t) {
   if (t.isAdjustment) return 'Balance adjustment';
+  if (t.category === 'Water' || /watermill|water mill/i.test(t.merchant || '')) return 'Groceries';
   if (isPersonalGasPurchase(t)) return 'Gas';
   if (isPersonalGroceryPurchase(t)) return 'Groceries';
   if (isPersonalItemsPurchase(t)) return 'Personal items';
@@ -40,7 +41,7 @@ function suggestCategory(t) {
   }
   if (/arco|shell|chevron|safeway|fry|walmart|wal-mart|wm supercenter|goodwill|savers|autozone|dollar tree|zip\*/.test(merchant)) return 'Needs review';
   if (/mcdonald|taco bell|burger king|wendy|subway|starbucks/.test(merchant)) return 'Eating out';
-  if (/watermill/.test(merchant)) return 'Water';
+  if (/watermill/.test(merchant)) return 'Groceries';
   if (/laundry/.test(merchant)) return 'Laundry';
   if (/extra space/.test(merchant)) return 'Storage';
   if (/simply business/.test(merchant)) return 'Insurance';
@@ -53,6 +54,14 @@ classifyImported = function(merchant, amount, description) {
 };
 
 function monthOfTransaction(t) { return String(t.date || '').slice(0,7); }
+function transactionSubcategory(t) {
+  return suggestCategory(t)==='Groceries' && (t.subcategory==='Water'||t.category==='Water'||/watermill|water mill/i.test(t.merchant||'')) ? 'Water' : '';
+}
+function subcategorySummary(category, visible, total) {
+  if(category!=='Groceries')return '';
+  const water = visible.filter(t=>t.amount<0&&transactionSubcategory(t)==='Water').reduce((sum,t)=>sum-t.amount,0);
+  return water>0 ? `<p class="subcategory-summary">Water · ${(water/total*100).toFixed(1)}% of Groceries <strong>${money(water)}</strong></p>` : '';
+}
 function renderCategoryReview() {
   const tx = state.transactions.filter(t => !t.isAdjustment);
   const months = [...new Set(tx.map(monthOfTransaction).filter(m => /^\d{4}-\d{2}$/.test(m)))].sort().reverse();
@@ -93,11 +102,17 @@ function renderCategoryReview() {
   });
   chart.innerHTML = spent>0 ? `<figure class="spending-figure"><div class="spending-pie" role="img" aria-label="Spending by category; percentages and amounts listed below" style="background:conic-gradient(${stops.join(',')})"></div><figcaption><strong>${money(spent)} in purchases</strong><p class="backup-copy">Share of spending for the selected month and context, before refunds.</p><ul class="pie-legend">${slices.map(([name,value],i)=>`<li><span class="pie-key" style="background:${colors[i%colors.length]}"></span><span>${categoryEscape(name)}</span><strong>${(value/spent*100).toFixed(1)}% · ${money(value)}</strong></li>`).join('')}</ul></figcaption></figure>` : '<p class="backup-copy">The chart will appear when this selection has spending.</p>';
   $('categoryTotals').textContent = `Purchases ${money(spent)} · Money received ${money(receipts)} · Transfer activity ${money(transfers)}`;
-  $('categoryBreakdown').innerHTML = [...totals].sort((a,b)=>b[1]-a[1]).map(([category,total])=>`<details class="category-detail"><summary><span>${categoryEscape(category)}</span><strong>${money(total)}</strong></summary>${visible.filter(t=>t.amount<0&&suggestCategory(t)===category).map(t=>`<p>${formatDate(t.date)} · ${categoryEscape(t.merchant)} <strong>${money(t.amount)}</strong></p>`).join('')}</details>`).join('') || '<p class="backup-copy">No purchases for this selection.</p>';
+  $('categoryBreakdown').innerHTML = [...totals].sort((a,b)=>b[1]-a[1]).map(([category,total])=>`<details class="category-detail"><summary><span>${categoryEscape(category)}</span><strong>${money(total)}</strong></summary>${subcategorySummary(category,visible,total)}${visible.filter(t=>t.amount<0&&suggestCategory(t)===category).map(t=>`<p>${formatDate(t.date)} · ${categoryEscape(t.merchant)} <strong>${money(t.amount)}</strong></p>`).join('')}</details>`).join('') || '<p class="backup-copy">No purchases for this selection.</p>';
 }
 
 const renderLedgerWithCategories = render;
 render = function() {
+  state.transactions.filter(t=>!t.isAdjustment&&(t.category==='Water'||/watermill|water mill/i.test(t.merchant||''))).forEach(t=>{
+    t.category='Groceries';
+    t.subcategory='Water';
+    t.context='Personal';
+    t.needsReview=false;
+  });
   // Tyrone's merchant preference applies to existing entries and future captures.
   state.transactions.filter(isPersonalGasPurchase).forEach(t => {
     t.category = 'Gas';
@@ -135,7 +150,7 @@ render = function() {
   // Give old imported entries the same visible suggestions, without altering balances.
   document.querySelectorAll('#transactions .tx-row').forEach((row,i)=>{
     const tx = state.transactions.filter(t=>$('filter').value==='Everything'||t.context===$('filter').value).slice().reverse()[i];
-    if(tx && !tx.isAdjustment) row.querySelector('.tx-meta').textContent = `${suggestCategory(tx)} · ${tx.context} · ${tx.account}`;
+    if(tx && !tx.isAdjustment) row.querySelector('.tx-meta').textContent = `${suggestCategory(tx)}${transactionSubcategory(tx)?" → "+transactionSubcategory(tx):""} · ${tx.context} · ${tx.account}`;
   });
   renderCategoryReview();
 };
@@ -150,7 +165,8 @@ $('categoryReviewList').addEventListener('submit', e=>{
   if(!t)return;
   const category = form.elements.category.value;
   if(category==='Needs review')return toast('Choose a category before saving');
-  t.category=category;
+  t.category=category==='Water'?'Groceries':category;
+  t.subcategory=category==='Water'?'Water':'';
   t.context=form.elements.context.value;
   t.categoryConfirmed=true;
   t.needsReview=false;
