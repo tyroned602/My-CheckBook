@@ -1,0 +1,16 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ctx=vm.createContext({crypto:require('node:crypto')});
+vm.runInContext(fs.readFileSync('forms.js','utf8').split('let editorState')[0],ctx);
+const ledger={accounts:[{name:'PayPal',balance:73.37},{name:'Cash',balance:70}],transactions:[{id:'a',account:'PayPal',amount:-10,merchant:'Test',date:'2026-10-28T12:00:00'}]};
+const before=JSON.stringify(ledger),signature=ctx.accountReviewSignature(ledger,ledger.accounts[0]);
+const changed=ctx.changeTransaction(ledger,'a',{account:'Cash',amount:-12.50,merchant:'Corrected',date:'2026-10-27T12:00:00'});
+assert.equal(changed.accounts[0].balance,83.37);assert.equal(changed.accounts[1].balance,57.5);
+assert.equal(JSON.stringify(ledger),before);assert.equal(changed.transactions.length,1);
+assert.notEqual(ctx.accountReviewSignature(changed,changed.accounts[0]),signature);
+assert.throws(()=>ctx.changeTransaction(ledger,'missing',{account:'Cash',amount:-5}));
+assert.throws(()=>ctx.changeTransaction(ledger,'a',{account:'Missing',amount:-5}));
+const linked=JSON.parse(before);linked.transactions[0].transferId='pair';
+assert.throws(()=>ctx.changeTransaction(linked,'a',{account:'Cash',amount:-5}));
+const adjustment=JSON.parse(before);adjustment.transactions[0].isAdjustment=true;
+assert.throws(()=>ctx.changeTransaction(adjustment,'a',{account:'Cash',amount:-5}));
+console.log('Passed form edit balance reversal, cross-account edits, original preservation, review invalidation, and protected transfer/adjustment entries.');

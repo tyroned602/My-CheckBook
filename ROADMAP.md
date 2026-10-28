@@ -28,6 +28,15 @@ amount parsing that handles commas.
 
 ## Stage 3: Entry forms and reconciliation
 
+First checkpoint implemented: accessible transaction/account dialogs, cash forms,
+editable parsed-entry details, dated entries and comma-aware form amounts. Account
+balance changes route through reconciliation. Balance confirmations recheck the
+account signature, and daily completion requires fresh checks of every account.
+Completed reviews persist in cloud data and regular backups. The inactive lock
+button was removed. Run `node tests/forms.test.cjs`.
+Still pending: full restore validation and recoverable deletion for ordinary
+transactions/accounts, plus broader mobile verification.
+
 Replace pop-up prompts with accessible forms. Allow account/date/category edits
 before saving. Recheck balances when confirming adjustments and record daily
 review completion. Validate backups fully and make deletion recoverable. Escape

@@ -1,5 +1,5 @@
-const CACHE = 'checkbook-v18';
-const ASSETS = ['./', './index.html', './styles.css', './app.js', './categories.js', './sync.js', './imports.js', './transfers.js', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'checkbook-v19';
+const ASSETS = ['./', './index.html', './styles.css', './app.js', './categories.js', './sync.js', './imports.js', './transfers.js', './forms.js', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', event => { const request=event.request; if(request.method !== 'GET') return; const liveAsset=/\.(html|js|css|webmanifest)$/.test(new URL(request.url).pathname); event.respondWith(liveAsset ? fetch(request, {cache:'no-store'}).then(response => { const copy=response.clone(); caches.open(CACHE).then(cache => cache.put(request, copy)); return response; }).catch(() => caches.match(request)) : caches.match(request).then(cached => cached || fetch(request).then(response => { const copy=response.clone(); caches.open(CACHE).then(cache => cache.put(request, copy)); return response; }))); });
