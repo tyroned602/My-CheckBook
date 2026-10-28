@@ -1,0 +1,14 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ctx=vm.createContext({localDay:date=>date.toISOString().slice(0,10)});
+vm.runInContext(fs.readFileSync('navigation.js','utf8').split("let currentPage")[0],ctx);
+const tx=[{id:1,merchant:'QT',category:'Gas',context:'Personal',account:'PayPal',date:'2026-10-25T12:00:00Z'},{id:2,merchant:'Goodwill',category:'Resale inventory',context:'Reselling',account:'Cash',date:'2026-10-28T12:00:00Z'},{id:3,merchant:'Frys',category:'Groceries',context:'Personal',account:'PayPal',date:'2026-10-27T12:00:00Z'}];
+assert.equal(ctx.filteredHistory(tx)[0].id,2);
+assert.equal(ctx.filteredHistory(tx,{query:'gas'})[0].id,1);
+assert.equal(ctx.filteredHistory(tx,{context:'Personal'}).length,2);
+assert.equal(ctx.filteredHistory(tx,{account:'Cash'})[0].id,2);
+assert.equal(ctx.filteredHistory(tx,{start:'2026-10-27',end:'2026-10-27'})[0].id,3);
+assert.equal(ctx.filteredHistory(tx,{query:'no match'}).length,0);
+const gas=ctx.categoryColor('Gas');ctx.categoryColor('Groceries');assert.equal(ctx.categoryColor('Gas'),gas);
+assert.notEqual(ctx.categoryColor('Gas'),ctx.categoryColor('Groceries'));
+assert.equal(tx[0].id,1);
+console.log('Passed history search, filters, date sorting, stable colors, and unchanged ledger ordering.');

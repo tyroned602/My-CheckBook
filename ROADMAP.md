@@ -58,6 +58,12 @@ and provide consistent subcategory choices. Separate income, refunds, cashback.
 
 ## Stage 5: Navigation and reports
 
+First polish checkpoint: Home/Transactions/Reports/Settings screens, persistent
+navigation and sync shortcut, merchant/category/note search, account/context/date
+filters, newest-date-first history, consistent category colors, improved legend
+and action layout, offline/local-file status, and an update control that guards
+unfinished entries. Run `node tests/navigation.test.cjs`.
+
 Home, Transactions, Reports, Settings; search and date sorting; stable category
 colors; offline and update controls; narrow-screen and Safari home-screen QA.
 

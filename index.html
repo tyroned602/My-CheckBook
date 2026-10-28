@@ -17,6 +17,8 @@
   <body>
     <main class="shell">
       <header class="topbar"><div><p class="eyebrow">CHECKBOOK</p><h1>Good morning, Tyrone</h1></div></header>
+      <nav class="app-navigation" aria-label="Main navigation"><button type="button" data-app-page="home" aria-pressed="true" aria-controls="page-home">Home</button><button type="button" data-app-page="transactions" aria-pressed="false" aria-controls="page-transactions">Transactions</button><button type="button" data-app-page="reports" aria-pressed="false" aria-controls="page-reports">Reports</button><button type="button" data-app-page="settings" aria-pressed="false" aria-controls="page-settings">Settings</button></nav>
+      <div class="page-intro"><h2 id="pageHeading" tabindex="-1">Your day at a glance</h2><button class="text-btn" id="syncShortcut">Sync & backup</button></div><p class="network-status" id="networkStatus" role="status"></p>
       <section class="capture"><button class="mic" id="micBtn" aria-label="Record transaction"><span>●</span><strong>Tap to speak</strong><small>Record a transaction</small></button><div class="capture-copy"><h2>What happened?</h2><p id="status">Speak naturally and I’ll organize it for you.</p></div></section>
       <section class="hero-card"><div><p class="eyebrow muted">AVAILABLE CASH</p><div class="hero-value" id="cashTotal">$0.00</div><p class="muted" id="accountCount">0 accounts</p></div><div class="pulse-dot"></div></section>
       <form class="quick-form" id="entryForm"><input id="entry" autocomplete="off" placeholder="Spent $42 at AutoZone on Discover…" /><button>Parse</button></form>
@@ -36,20 +38,22 @@
       <section class="section"><div class="section-head"><div><p class="eyebrow muted">RECENT</p><h2>Transactions</h2></div><select id="filter"><option value="Everything">Everything</option><option>Personal</option><option>Reselling</option><option>Detailing</option></select></div><p class="backup-copy">Scroll inside the list to see more transactions.</p><div id="transactions" class="tx-list" tabindex="0" aria-label="Transaction history"></div></section>
       <section class="section confirmation hidden" id="syncConflict" role="region" aria-label="Choose a ledger"><h2>Which ledger should we use?</h2><p class="backup-copy" id="syncConflictSummary"></p><p class="backup-copy">Choosing a copy replaces the other ledger. This does not merge transactions. Download your current backup first if you want an extra copy.</p><div class="backup-actions"><button class="backup-btn text-btn" id="useDeviceLedger">Use this device’s copy</button><button class="backup-btn text-btn" id="useCloudLedger">Use cloud copy</button></div></section>
       <button class="starting-btn text-btn" id="downloadRecovery">Download recovery copies</button>
+      <button class="starting-btn text-btn" id="refreshApp">Check for app updates</button>
       <section class="section"><details><summary>Merchant category defaults</summary><p class="backup-copy">Edit a default for purchases from a store. Individual corrections take priority and never get replaced by these rules.</p><div id="merchantRuleList" class="tx-list"></div><button class="starting-btn text-btn" id="addMerchantRule">Add merchant default</button></details></section>
       <section class="section"><details><summary>Removed items — restore an entry</summary><p class="backup-copy">Restoring a transaction reapplies its balance change. Removed statement entries stay excluded from repeat imports until restored.</p><div id="removedItems" class="tx-list"></div></details></section>
     </main>
     <dialog id="ledgerEditor" aria-labelledby="editorTitle"><form id="editorForm"><h2 id="editorTitle"></h2><div id="editorFields" class="editor-fields"></div><p id="editorError" role="alert"></p><div class="backup-actions"><button type="button" class="backup-btn text-btn" id="editorCancel">Cancel</button><button class="save-btn">Save</button></div></form></dialog>
     <div class="toast" id="toast"></div>
-    <script src="app.js?v=21"></script>
-    <script src="rules.js?v=21"></script>
-    <script src="categories.js?v=21"></script>
-    <script src="sync.js?v=21"></script>
-    <script src="imports.js?v=21"></script>
-    <script src="transfers.js?v=21"></script>
-    <script src="forms.js?v=21"></script>
-    <script src="safety.js?v=21"></script>
-    <script src="rule-editor.js?v=21"></script>
+    <script src="app.js?v=22"></script>
+    <script src="rules.js?v=22"></script>
+    <script src="categories.js?v=22"></script>
+    <script src="sync.js?v=22"></script>
+    <script src="imports.js?v=22"></script>
+    <script src="transfers.js?v=22"></script>
+    <script src="forms.js?v=22"></script>
+    <script src="safety.js?v=22"></script>
+    <script src="rule-editor.js?v=22"></script>
+    <script src="navigation.js?v=22"></script>
     <script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').then(reg=>reg.update());</script>
   </body>
 </html>
