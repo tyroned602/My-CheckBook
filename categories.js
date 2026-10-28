@@ -1,5 +1,5 @@
 // Categories describe the purchase; context describes which part of life it belongs to.
-const spendingCategories = ['Needs review', 'Groceries', 'Eating out', 'Gas', 'Personal items', 'Household', 'Subscriptions', 'Business supplies', 'Resale inventory', 'Water', 'Laundry', 'Storage', 'Insurance', 'Health & fitness', 'Other'];
+const spendingCategories = ['Needs review', 'Groceries', 'Eating out', 'Gas', 'Personal items', 'Household', 'Subscriptions', 'Loans', 'Business supplies', 'Resale inventory', 'Water', 'Laundry', 'Storage', 'Insurance', 'Health & fitness', 'Other'];
 const receiptCategories = ['Needs review', 'Sales income', 'Other income', 'Refund', 'Cashback', 'Transfer'];
 const categoryEscape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function isPersonalGasPurchase(t) {
@@ -11,11 +11,23 @@ function isPersonalGroceryPurchase(t) {
 function isPersonalItemsPurchase(t) {
   return !t.isAdjustment && t.amount < 0 && t.category !== 'Transfer' && /walmart|wal-mart|wm supercenter/i.test(String(t.merchant || ''));
 }
+function isResaleInventoryPurchase(t) {
+  return !t.isAdjustment && t.amount < 0 && t.category !== 'Transfer' && /\bsavers\b|\bgoodwill\b/i.test(String(t.merchant || ''));
+}
+function isCircleKGasPurchase(t) {
+  return !t.isAdjustment && t.amount < 0 && t.category !== 'Transfer' && /circle\s*k|circlek/i.test(String(t.merchant || ''));
+}
+function isLoanPayment(t) {
+  return !t.isAdjustment && t.amount < 0 && t.category !== 'Transfer' && /zip\*\s*(app\s*)?pay\s*later|zip\*\s*app\s*pay\s*later/i.test(String(t.merchant || ''));
+}
 function suggestCategory(t) {
   if (t.isAdjustment) return 'Balance adjustment';
   if (isPersonalGasPurchase(t)) return 'Gas';
   if (isPersonalGroceryPurchase(t)) return 'Groceries';
   if (isPersonalItemsPurchase(t)) return 'Personal items';
+  if (isResaleInventoryPurchase(t)) return 'Resale inventory';
+  if (isCircleKGasPurchase(t)) return 'Gas';
+  if (isLoanPayment(t)) return 'Loans';
   if (t.categoryConfirmed) return t.category;
   // Preserve specific choices made with the existing transaction editor.
   if (t.category && !['General', 'Gas', 'Inventory', 'Supplies', 'Income', 'Needs review'].includes(t.category)) return t.category;
@@ -26,7 +38,7 @@ function suggestCategory(t) {
     // Positive card entries may be payouts or refunds; ask instead of treating all as income.
     return 'Needs review';
   }
-  if (/circle\s*k|circlek|arco|shell|chevron|safeway|fry|walmart|wal-mart|wm supercenter|goodwill|savers|autozone|dollar tree|zip\*/.test(merchant)) return 'Needs review';
+  if (/arco|shell|chevron|safeway|fry|walmart|wal-mart|wm supercenter|goodwill|savers|autozone|dollar tree|zip\*/.test(merchant)) return 'Needs review';
   if (/mcdonald|taco bell|burger king|wendy|subway|starbucks/.test(merchant)) return 'Eating out';
   if (/watermill/.test(merchant)) return 'Water';
   if (/laundry/.test(merchant)) return 'Laundry';
@@ -84,6 +96,21 @@ render = function() {
   });
   state.transactions.filter(isPersonalItemsPurchase).forEach(t => {
     t.category = 'Personal items';
+    t.context = 'Personal';
+    t.needsReview = false;
+  });
+  state.transactions.filter(isResaleInventoryPurchase).forEach(t => {
+    t.category = 'Resale inventory';
+    t.context = 'Reselling';
+    t.needsReview = false;
+  });
+  state.transactions.filter(isCircleKGasPurchase).forEach(t => {
+    t.category = 'Gas';
+    t.context = 'Personal';
+    t.needsReview = false;
+  });
+  state.transactions.filter(isLoanPayment).forEach(t => {
+    t.category = 'Loans';
     t.context = 'Personal';
     t.needsReview = false;
   });
