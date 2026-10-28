@@ -1,5 +1,5 @@
 // Categories describe the purchase; context describes which part of life it belongs to.
-const spendingCategories = ['Needs review', 'Groceries', 'Eating out', 'Gas', 'Household', 'Subscriptions', 'Business supplies', 'Resale inventory', 'Water', 'Laundry', 'Storage', 'Insurance', 'Health & fitness', 'Other'];
+const spendingCategories = ['Needs review', 'Groceries', 'Eating out', 'Gas', 'Personal items', 'Household', 'Subscriptions', 'Business supplies', 'Resale inventory', 'Water', 'Laundry', 'Storage', 'Insurance', 'Health & fitness', 'Other'];
 const receiptCategories = ['Needs review', 'Sales income', 'Other income', 'Refund', 'Cashback', 'Transfer'];
 const categoryEscape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function isPersonalGasPurchase(t) {
@@ -8,10 +8,14 @@ function isPersonalGasPurchase(t) {
 function isPersonalGroceryPurchase(t) {
   return !t.isAdjustment && t.amount < 0 && t.category !== 'Transfer' && /\bfry(?:['’]?s)?\b/i.test(String(t.merchant || ''));
 }
+function isPersonalItemsPurchase(t) {
+  return !t.isAdjustment && t.amount < 0 && t.category !== 'Transfer' && /walmart|wal-mart|wm supercenter/i.test(String(t.merchant || ''));
+}
 function suggestCategory(t) {
   if (t.isAdjustment) return 'Balance adjustment';
   if (isPersonalGasPurchase(t)) return 'Gas';
   if (isPersonalGroceryPurchase(t)) return 'Groceries';
+  if (isPersonalItemsPurchase(t)) return 'Personal items';
   if (t.categoryConfirmed) return t.category;
   // Preserve specific choices made with the existing transaction editor.
   if (t.category && !['General', 'Gas', 'Inventory', 'Supplies', 'Income', 'Needs review'].includes(t.category)) return t.category;
@@ -75,6 +79,11 @@ render = function() {
   });
   state.transactions.filter(isPersonalGroceryPurchase).forEach(t => {
     t.category = 'Groceries';
+    t.context = 'Personal';
+    t.needsReview = false;
+  });
+  state.transactions.filter(isPersonalItemsPurchase).forEach(t => {
+    t.category = 'Personal items';
     t.context = 'Personal';
     t.needsReview = false;
   });
