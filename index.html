@@ -32,10 +32,13 @@
       <section class="section backup-section"><div class="section-head"><div><p class="eyebrow muted">SAFETY</p><h2>Ledger backup</h2></div><span class="muted">Keep a copy</span></div><p class="backup-copy">Download your accounts and transactions to Files or iCloud Drive. Restore it anytime on this device.</p><div class="backup-actions"><button class="text-btn backup-btn" id="exportBtn">Download backup</button><button class="text-btn backup-btn" id="importBtn">Restore backup</button></div><input type="file" id="importFile" accept="application/json,.json" hidden /></section>
       <section class="section sync-section"><div class="section-head"><div><p class="eyebrow muted">CLOUD SYNC</p><h2 id="syncTitle">Sync across devices</h2></div><span class="muted" id="syncStatus">Not connected</span></div><div id="authForm"><input id="authEmail" type="email" placeholder="Your email" autocomplete="email" /><input id="authPassword" type="password" placeholder="Password" autocomplete="current-password" /><div class="backup-actions"><button class="text-btn backup-btn" id="signInBtn">Sign in</button><button class="text-btn backup-btn" id="signUpBtn">Create account</button></div></div><div id="syncControls" class="hidden"><p class="backup-copy">Your ledger is synced privately between your devices.</p><div class="backup-actions"><button class="text-btn backup-btn" id="syncNowBtn">Sync now</button><button class="text-btn backup-btn" id="signOutBtn">Sign out</button></div></div></section>
       <section class="section"><div class="section-head"><div><p class="eyebrow muted">RECENT</p><h2>Transactions</h2></div><select id="filter"><option value="Everything">Everything</option><option>Personal</option><option>Reselling</option><option>Detailing</option></select></div><p class="backup-copy">Scroll inside the list to see more transactions.</p><div id="transactions" class="tx-list" tabindex="0" aria-label="Transaction history"></div></section>
+      <section class="section confirmation hidden" id="syncConflict" role="region" aria-label="Choose a ledger"><h2>Which ledger should we use?</h2><p class="backup-copy" id="syncConflictSummary"></p><p class="backup-copy">Choosing a copy replaces the other ledger. This does not merge transactions. Download your current backup first if you want an extra copy.</p><div class="backup-actions"><button class="backup-btn text-btn" id="useDeviceLedger">Use this device’s copy</button><button class="backup-btn text-btn" id="useCloudLedger">Use cloud copy</button></div></section>
+      <button class="starting-btn text-btn" id="downloadRecovery">Download recovery copies</button>
     </main>
     <div class="toast" id="toast"></div>
-    <script src="app.js?v=15"></script>
-    <script src="categories.js?v=15"></script>
+    <script src="app.js?v=16"></script>
+    <script src="categories.js?v=16"></script>
+    <script src="sync.js?v=16"></script>
     <script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').then(reg=>reg.update());</script>
   </body>
 </html>
