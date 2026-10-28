@@ -77,6 +77,21 @@ function renderCategoryReview() {
     totals.set(category,(totals.get(category)||0)-t.amount);
   }
   const spent = [...totals.values()].reduce((a,b)=>a+b,0);
+  let chart = $('spendingChart');
+  if (!chart) {
+    chart = document.createElement('div');
+    chart.id = 'spendingChart';
+    $('categoryBreakdown').before(chart);
+  }
+  const colors = ['#8de6b1','#80bfff','#ffbd80','#d4a5ff','#ff91ad','#ffe080','#58d3ce','#b9cf78','#adadff','#e8a878','#a4dbe8','#e7b7cf','#c9d5df','#a3bd95','#d8c0a0','#b69ee0','#f09e92','#8eaecb'];
+  const slices = [...totals].filter(([,value])=>value>0).sort((a,b)=>b[1]-a[1]);
+  let position = 0;
+  const stops = slices.map(([,value],i)=>{
+    const start = position;
+    position += value / spent * 100;
+    return `${colors[i%colors.length]} ${start}% ${position}%`;
+  });
+  chart.innerHTML = spent>0 ? `<figure class="spending-figure"><div class="spending-pie" role="img" aria-label="Spending by category; percentages and amounts listed below" style="background:conic-gradient(${stops.join(',')})"></div><figcaption><strong>${money(spent)} in purchases</strong><p class="backup-copy">Share of spending for the selected month and context, before refunds.</p><ul class="pie-legend">${slices.map(([name,value],i)=>`<li><span class="pie-key" style="background:${colors[i%colors.length]}"></span><span>${categoryEscape(name)}</span><strong>${(value/spent*100).toFixed(1)}% · ${money(value)}</strong></li>`).join('')}</ul></figcaption></figure>` : '<p class="backup-copy">The chart will appear when this selection has spending.</p>';
   $('categoryTotals').textContent = `Purchases ${money(spent)} · Money received ${money(receipts)} · Transfer activity ${money(transfers)}`;
   $('categoryBreakdown').innerHTML = [...totals].sort((a,b)=>b[1]-a[1]).map(([category,total])=>`<details class="category-detail"><summary><span>${categoryEscape(category)}</span><strong>${money(total)}</strong></summary>${visible.filter(t=>t.amount<0&&suggestCategory(t)===category).map(t=>`<p>${formatDate(t.date)} · ${categoryEscape(t.merchant)} <strong>${money(t.amount)}</strong></p>`).join('')}</details>`).join('') || '<p class="backup-copy">No purchases for this selection.</p>';
 }
