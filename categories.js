@@ -2,8 +2,12 @@
 const spendingCategories = ['Needs review', 'Groceries', 'Eating out', 'Gas', 'Household', 'Subscriptions', 'Business supplies', 'Resale inventory', 'Water', 'Laundry', 'Storage', 'Insurance', 'Health & fitness', 'Other'];
 const receiptCategories = ['Needs review', 'Sales income', 'Other income', 'Refund', 'Cashback', 'Transfer'];
 const categoryEscape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function isPersonalGasPurchase(t) {
+  return !t.isAdjustment && t.amount < 0 && t.category !== 'Transfer' && /\bqt\b|\bquiktrip\b/i.test(String(t.merchant || ''));
+}
 function suggestCategory(t) {
   if (t.isAdjustment) return 'Balance adjustment';
+  if (isPersonalGasPurchase(t)) return 'Gas';
   if (t.categoryConfirmed) return t.category;
   // Preserve specific choices made with the existing transaction editor.
   if (t.category && !['General', 'Gas', 'Inventory', 'Supplies', 'Income', 'Needs review'].includes(t.category)) return t.category;
@@ -14,7 +18,7 @@ function suggestCategory(t) {
     // Positive card entries may be payouts or refunds; ask instead of treating all as income.
     return 'Needs review';
   }
-  if (/\bqt\b|quiktrip|circle\s*k|circlek|arco|shell|chevron|safeway|fry|walmart|wal-mart|wm supercenter|goodwill|savers|autozone|dollar tree|zip\*/.test(merchant)) return 'Needs review';
+  if (/circle\s*k|circlek|arco|shell|chevron|safeway|fry|walmart|wal-mart|wm supercenter|goodwill|savers|autozone|dollar tree|zip\*/.test(merchant)) return 'Needs review';
   if (/mcdonald|taco bell|burger king|wendy|subway|starbucks/.test(merchant)) return 'Eating out';
   if (/watermill/.test(merchant)) return 'Water';
   if (/laundry/.test(merchant)) return 'Laundry';
@@ -59,6 +63,12 @@ function renderCategoryReview() {
 
 const renderLedgerWithCategories = render;
 render = function() {
+  // Tyrone's merchant preference applies to existing entries and future captures.
+  state.transactions.filter(isPersonalGasPurchase).forEach(t => {
+    t.category = 'Gas';
+    t.context = 'Personal';
+    t.needsReview = false;
+  });
   renderLedgerWithCategories();
   const total = state.accounts.filter(a=>a.type!=='Credit card').reduce((s,a)=>s+Number(a.balance),0);
   $('cashTotal').textContent = (total<0?'-':'') + money(total);
@@ -71,6 +81,7 @@ render = function() {
 };
 $('categoryMonth').onchange = renderCategoryReview;
 $('categoryContext').onchange = renderCategoryReview;
+$('filter').onchange = render;
 $('categoryReviewList').addEventListener('submit', e=>{
   const form = e.target.closest('[data-category-form]');
   if(!form)return;
