@@ -5,9 +5,13 @@ const categoryEscape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'
 function isPersonalGasPurchase(t) {
   return !t.isAdjustment && t.amount < 0 && t.category !== 'Transfer' && /\bqt\b|\bquiktrip\b/i.test(String(t.merchant || ''));
 }
+function isPersonalGroceryPurchase(t) {
+  return !t.isAdjustment && t.amount < 0 && t.category !== 'Transfer' && /\bfry(?:['’]?s)?\b/i.test(String(t.merchant || ''));
+}
 function suggestCategory(t) {
   if (t.isAdjustment) return 'Balance adjustment';
   if (isPersonalGasPurchase(t)) return 'Gas';
+  if (isPersonalGroceryPurchase(t)) return 'Groceries';
   if (t.categoryConfirmed) return t.category;
   // Preserve specific choices made with the existing transaction editor.
   if (t.category && !['General', 'Gas', 'Inventory', 'Supplies', 'Income', 'Needs review'].includes(t.category)) return t.category;
@@ -66,6 +70,11 @@ render = function() {
   // Tyrone's merchant preference applies to existing entries and future captures.
   state.transactions.filter(isPersonalGasPurchase).forEach(t => {
     t.category = 'Gas';
+    t.context = 'Personal';
+    t.needsReview = false;
+  });
+  state.transactions.filter(isPersonalGroceryPurchase).forEach(t => {
+    t.category = 'Groceries';
     t.context = 'Personal';
     t.needsReview = false;
   });
