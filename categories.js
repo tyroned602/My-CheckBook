@@ -22,14 +22,10 @@ function isLoanPayment(t) {
 }
 function suggestCategory(t) {
   if (t.isAdjustment) return 'Balance adjustment';
-  if (t.category === 'Water' || /watermill|water mill/i.test(t.merchant || '')) return 'Groceries';
-  if (isPersonalGasPurchase(t)) return 'Gas';
-  if (isPersonalGroceryPurchase(t)) return 'Groceries';
-  if (isPersonalItemsPurchase(t)) return 'Personal items';
-  if (isResaleInventoryPurchase(t)) return 'Resale inventory';
-  if (isCircleKGasPurchase(t)) return 'Gas';
-  if (isLoanPayment(t)) return 'Loans';
   if (t.categoryConfirmed) return t.category;
+  const merchantRule=matchingMerchantRule(state,t);
+  if(merchantRule)return merchantRule.category;
+  if(t.categorySource==='merchant-rule')return 'Needs review';
   // Preserve specific choices made with the existing transaction editor.
   if (t.category && !['General', 'Gas', 'Inventory', 'Supplies', 'Income', 'Needs review'].includes(t.category)) return t.category;
   const merchant = String(t.merchant || '').toLowerCase();
@@ -41,7 +37,6 @@ function suggestCategory(t) {
   }
   if (/arco|shell|chevron|safeway|fry|walmart|wal-mart|wm supercenter|goodwill|savers|autozone|dollar tree|zip\*/.test(merchant)) return 'Needs review';
   if (/mcdonald|taco bell|burger king|wendy|subway|starbucks/.test(merchant)) return 'Eating out';
-  if (/watermill/.test(merchant)) return 'Groceries';
   if (/laundry/.test(merchant)) return 'Laundry';
   if (/extra space/.test(merchant)) return 'Storage';
   if (/simply business/.test(merchant)) return 'Insurance';
@@ -50,12 +45,13 @@ function suggestCategory(t) {
 
 // Use the same conservative suggestions for new PayPal imports.
 classifyImported = function(merchant, amount, description) {
-  return {context:'Personal', category:suggestCategory({merchant,amount,description}), needsReview:/^Other:/i.test(description)};
+  const rule=matchingMerchantRule(state,{merchant,amount,description});
+  return {context:rule?.context||'Personal', subcategory:rule?.subcategory||'', category:rule?.category||suggestCategory({merchant,amount,description}), needsReview:/^Other:/i.test(description)};
 };
 
 function monthOfTransaction(t) { return String(t.date || '').slice(0,7); }
 function transactionSubcategory(t) {
-  return suggestCategory(t)==='Groceries' && (t.subcategory==='Water'||t.category==='Water'||/watermill|water mill/i.test(t.merchant||'')) ? 'Water' : '';
+  return suggestCategory(t)==='Groceries' && (t.subcategory==='Water'||t.category==='Water'||matchingMerchantRule(state,t)?.subcategory==='Water') ? 'Water' : '';
 }
 function subcategorySummary(category, visible, total) {
   if(category!=='Groceries')return '';
@@ -132,43 +128,7 @@ function renderCategoryReview() {
 
 const renderLedgerWithCategories = render;
 render = function() {
-  state.transactions.filter(t=>!t.isAdjustment&&(t.category==='Water'||/watermill|water mill/i.test(t.merchant||''))).forEach(t=>{
-    t.category='Groceries';
-    t.subcategory='Water';
-    t.context='Personal';
-    t.needsReview=false;
-  });
-  // Tyrone's merchant preference applies to existing entries and future captures.
-  state.transactions.filter(isPersonalGasPurchase).forEach(t => {
-    t.category = 'Gas';
-    t.context = 'Personal';
-    t.needsReview = false;
-  });
-  state.transactions.filter(isPersonalGroceryPurchase).forEach(t => {
-    t.category = 'Groceries';
-    t.context = 'Personal';
-    t.needsReview = false;
-  });
-  state.transactions.filter(isPersonalItemsPurchase).forEach(t => {
-    t.category = 'Personal items';
-    t.context = 'Personal';
-    t.needsReview = false;
-  });
-  state.transactions.filter(isResaleInventoryPurchase).forEach(t => {
-    t.category = 'Resale inventory';
-    t.context = 'Reselling';
-    t.needsReview = false;
-  });
-  state.transactions.filter(isCircleKGasPurchase).forEach(t => {
-    t.category = 'Gas';
-    t.context = 'Personal';
-    t.needsReview = false;
-  });
-  state.transactions.filter(isLoanPayment).forEach(t => {
-    t.category = 'Loans';
-    t.context = 'Personal';
-    t.needsReview = false;
-  });
+  applyCategoryRules(state);
   renderLedgerWithCategories();
   const total = state.accounts.filter(a=>a.type!=='Credit card').reduce((s,a)=>s+Number(a.balance),0);
   $('cashTotal').textContent = (total<0?'-':'') + money(total);

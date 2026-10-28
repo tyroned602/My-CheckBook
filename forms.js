@@ -42,6 +42,7 @@ function openTransactionEditor(t=null,options={}) {
     `<label>Account<select name="account">${state.accounts.map(a=>`<option ${a.name===account?'selected':''}>${categoryEscape(a.name)}</option>`).join('')}</select></label>`+
     field('Date','date',selectedDate,'type="date" required')+
     `<label>Category<select name="category">${categories.map(c=>`<option ${c===category?'selected':''}>${categoryEscape(c)}</option>`).join('')}</select></label><label>Personal or business<select name="context">${['Personal','Reselling','Detailing'].map(c=>`<option ${c===(t?.context||'Personal')?'selected':''}>${c}</option>`).join('')}</select></label>`+
+    `<label>Subcategory<select name="subcategory"><option value="">None</option><option ${t?.subcategory==='Water'?'selected':''}>Water</option></select></label><label>Category choice<select name="ruleMode"><option value="manual">This transaction only</option><option value="auto">Use merchant default</option></select></label>`+
     field('Note (optional)','note',t?.note||'','maxlength="500"'),
     form=>{
       const amount=parseMoneyCents(form.amount.value)/100*(form.direction.value==='expense'?-1:1);
@@ -49,9 +50,11 @@ function openTransactionEditor(t=null,options={}) {
       if(!Number.isFinite(new Date(date).getTime()))throw Error('Choose a valid date');
       const merchant=form.merchant.value.trim();if(!merchant)throw Error('Enter a description');
       const item={merchant,amount,date,account:form.account.value,category:form.category.value,context:form.context.value,note:form.note.value.trim()};
-      item.subcategory=item.category==='Water'?'Water':'';
-      if(item.subcategory)item.category='Groceries';
-      item.categoryConfirmed=item.category!=='Needs review';
+      item.subcategory=item.category==='Water'?'Water':form.subcategory.value;
+      if(item.category==='Water')item.category='Groceries';
+      if(item.subcategory&&item.category!=='Groceries'&&form.ruleMode.value!=='auto')throw Error('Water belongs under Groceries');
+      if(form.ruleMode.value==='auto'){item.category='Needs review';item.subcategory='';item.categoryConfirmed=false;item.categorySource='';}
+      else item.categoryConfirmed=true;
       if(options.pending){pending=[{...t,...item}];showParsed(pending);return;}
       state=changeTransaction(state,t?.id,item);save();toast('Transaction saved');
     });

@@ -1,6 +1,14 @@
 function validateLedgerBackup(input) {
   if(!input||typeof input!=='object'||!Array.isArray(input.accounts)||!Array.isArray(input.transactions))throw Error('Choose a Checkbook ledger backup');
   const next=JSON.parse(JSON.stringify(input));
+  if(next.merchantRules!==undefined){
+    if(!Array.isArray(next.merchantRules))throw Error('Backup has invalid merchant rules');
+    const ruleIds=new Set();
+    for(const r of next.merchantRules){
+      if(!r||typeof r.id!=='string'||ruleIds.has(r.id)||!Array.isArray(r.aliases)||!r.aliases.length||r.aliases.some(a=>typeof a!=='string'||!a.trim())||typeof r.category!=='string'||!['Personal','Reselling','Detailing'].includes(r.context)||r.subcategory&&r.subcategory!=='Water'||r.subcategory==='Water'&&r.category!=='Groceries')throw Error('Backup has an invalid merchant default');
+      ruleIds.add(r.id);
+    }
+  }
   const validId=id=>(typeof id==='string'&&id.trim().length>0)||(typeof id==='number'&&Number.isFinite(id));
   const validMoney=value=>typeof value==='number'&&Number.isFinite(value)&&Number.isSafeInteger(Math.round(value*100));
   const ids=new Set(),names=new Set(),txIds=new Set(),externalIds=new Set();

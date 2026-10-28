@@ -23,7 +23,7 @@
       <button class="starting-btn text-btn" id="manualEntryBtn">Add transaction with a form</button>
 
       <section class="confirmation hidden" id="confirmation"><div class="section-head"><div><p class="eyebrow muted">I HEARD</p><h2>Ready to save</h2></div><button class="text-btn" id="cancelBtn">Clear</button></div><button class="text-btn starting-btn" id="editParsedBtn">Edit details before saving</button><div id="parsedList"></div><button class="save-btn" id="saveBtn">Save transaction</button></section>
-      <section class="section category-section"><div class="section-head"><div><p class="eyebrow muted">WHERE IT GOES</p><h2>Spending by category</h2></div></div><div class="reconcile-form"><label>Month<select id="categoryMonth" aria-label="Report month"></select></label><label>Personal or business<select id="categoryContext"><option value="All">All</option><option>Personal</option><option>Reselling</option><option>Detailing</option></select></label></div><p class="backup-copy" id="categoryTotals"></p><p class="backup-copy">Purchases are shown before refunds. Money received includes income, refunds, cashback, and receipts awaiting review. Transfers and balance adjustments are excluded from purchases.</p><div id="categoryBreakdown"></div><details class="review-queue"><summary>Needs review <span id="categoryReviewCount"></span></summary><p class="backup-copy">QT purchases go to Personal Gas automatically. Other mixed-use stores stay here until you choose a category. Your choice applies to this transaction. Business purchases can be marked Reselling or Detailing.</p><div id="categoryReviewList"></div></details></section>
+      <section class="section category-section"><div class="section-head"><div><p class="eyebrow muted">WHERE IT GOES</p><h2>Spending by category</h2></div></div><div class="reconcile-form"><label>Month<select id="categoryMonth" aria-label="Report month"></select></label><label>Personal or business<select id="categoryContext"><option value="All">All</option><option>Personal</option><option>Reselling</option><option>Detailing</option></select></label></div><p class="backup-copy" id="categoryTotals"></p><p class="backup-copy">Purchases are shown before refunds. Money received includes income, refunds, cashback, and receipts awaiting review. Transfers and balance adjustments are excluded from purchases.</p><div id="categoryBreakdown"></div><details class="review-queue"><summary>Needs review <span id="categoryReviewCount"></span></summary><p class="backup-copy">Merchant defaults handle familiar stores. Your choices here apply only to this transaction and take priority over defaults. Business purchases can be marked Reselling or Detailing.</p><div id="categoryReviewList"></div></details></section>
 
       <section class="section"><div class="section-head"><div><p class="eyebrow muted">MONEY</p><h2>Accounts</h2></div><button class="text-btn" id="addAccountBtn">+ Add</button></div><div id="accounts" class="account-list"></div><button class="text-btn starting-btn" id="startingPointBtn">Set starting point</button></section>
       <section class="section"><details><summary>Move money between accounts</summary><form id="transferForm"><div class="reconcile-form"><label>From<select id="transferFrom"></select></label><label>To<select id="transferTo"></select></label><label>Amount<input id="transferAmount" inputmode="decimal" placeholder="20.00" required /></label></div><p class="backup-copy">Updates both balances together. Transfers are excluded from income and spending.</p><button class="save-btn">Save transfer</button></form></details></section>
@@ -36,17 +36,20 @@
       <section class="section"><div class="section-head"><div><p class="eyebrow muted">RECENT</p><h2>Transactions</h2></div><select id="filter"><option value="Everything">Everything</option><option>Personal</option><option>Reselling</option><option>Detailing</option></select></div><p class="backup-copy">Scroll inside the list to see more transactions.</p><div id="transactions" class="tx-list" tabindex="0" aria-label="Transaction history"></div></section>
       <section class="section confirmation hidden" id="syncConflict" role="region" aria-label="Choose a ledger"><h2>Which ledger should we use?</h2><p class="backup-copy" id="syncConflictSummary"></p><p class="backup-copy">Choosing a copy replaces the other ledger. This does not merge transactions. Download your current backup first if you want an extra copy.</p><div class="backup-actions"><button class="backup-btn text-btn" id="useDeviceLedger">Use this device’s copy</button><button class="backup-btn text-btn" id="useCloudLedger">Use cloud copy</button></div></section>
       <button class="starting-btn text-btn" id="downloadRecovery">Download recovery copies</button>
+      <section class="section"><details><summary>Merchant category defaults</summary><p class="backup-copy">Edit a default for purchases from a store. Individual corrections take priority and never get replaced by these rules.</p><div id="merchantRuleList" class="tx-list"></div><button class="starting-btn text-btn" id="addMerchantRule">Add merchant default</button></details></section>
       <section class="section"><details><summary>Removed items — restore an entry</summary><p class="backup-copy">Restoring a transaction reapplies its balance change. Removed statement entries stay excluded from repeat imports until restored.</p><div id="removedItems" class="tx-list"></div></details></section>
     </main>
     <dialog id="ledgerEditor" aria-labelledby="editorTitle"><form id="editorForm"><h2 id="editorTitle"></h2><div id="editorFields" class="editor-fields"></div><p id="editorError" role="alert"></p><div class="backup-actions"><button type="button" class="backup-btn text-btn" id="editorCancel">Cancel</button><button class="save-btn">Save</button></div></form></dialog>
     <div class="toast" id="toast"></div>
-    <script src="app.js?v=20"></script>
-    <script src="categories.js?v=20"></script>
-    <script src="sync.js?v=20"></script>
-    <script src="imports.js?v=20"></script>
-    <script src="transfers.js?v=20"></script>
-    <script src="forms.js?v=20"></script>
-    <script src="safety.js?v=20"></script>
+    <script src="app.js?v=21"></script>
+    <script src="rules.js?v=21"></script>
+    <script src="categories.js?v=21"></script>
+    <script src="sync.js?v=21"></script>
+    <script src="imports.js?v=21"></script>
+    <script src="transfers.js?v=21"></script>
+    <script src="forms.js?v=21"></script>
+    <script src="safety.js?v=21"></script>
+    <script src="rule-editor.js?v=21"></script>
     <script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').then(reg=>reg.update());</script>
   </body>
 </html>

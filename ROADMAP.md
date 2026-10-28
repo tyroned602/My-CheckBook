@@ -48,6 +48,11 @@ all user/imported display text. Remove or implement the inactive lock button.
 
 ## Stage 4: Category controls
 
+Published checkpoint: editable/pausable merchant defaults with aliases, categories,
+contexts, and Water subcategory; per-transaction overrides win over defaults;
+transaction forms can return an entry to its merchant default. Defaults sync in
+ledger data and are validated in backups. Run `node tests/rules.test.cjs`.
+
 Separate merchant defaults from individual overrides, expose editable rules,
 and provide consistent subcategory choices. Separate income, refunds, cashback.
 
